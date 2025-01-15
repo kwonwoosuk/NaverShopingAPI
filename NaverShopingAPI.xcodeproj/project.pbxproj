@@ -6,8 +6,13 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		4DC918ED2D37CA03005F2500 /* .gitignore in Resources */ = {isa = PBXBuildFile; fileRef = 4DC918EC2D37CA03005F2500 /* .gitignore */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXFileReference section */
 		4DC918D42D37C97F005F2500 /* NaverShopingAPI.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = NaverShopingAPI.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		4DC918EC2D37CA03005F2500 /* .gitignore */ = {isa = PBXFileReference; lastKnownFileType = text; path = .gitignore; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -45,6 +50,7 @@
 		4DC918CB2D37C97F005F2500 = {
 			isa = PBXGroup;
 			children = (
+				4DC918EC2D37CA03005F2500 /* .gitignore */,
 				4DC918D62D37C97F005F2500 /* NaverShopingAPI */,
 				4DC918D52D37C97F005F2500 /* Products */,
 			);
@@ -122,6 +128,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4DC918ED2D37CA03005F2500 /* .gitignore in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
