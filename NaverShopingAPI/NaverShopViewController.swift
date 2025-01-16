@@ -15,6 +15,8 @@ import SnapKit
  셀에서 image, mallName, title(2줄까지), lprice  //  좋아요 기능 travelApp참고 ... 테이블뷰라..으ㅡ음
  option 정렬 영역, 다른파라미터로 정렬기능 구현-> 네트워크 통신 다시호출 button으로 만들어야하ㄴ?
  */
+
+
 struct List: Decodable {
     //let lastBuildDate: String //  정렬옵션에서 날짜순할때 쓰면될거같고....ㄹ
     let total: Int
@@ -38,11 +40,15 @@ struct Item: Decodable {
     }
 }
 
+
+var sort: String = "sim"
 class NaverShopViewController: UIViewController {
     var searchText: String = "" // 검색어 들어옴 나이스
     
     var itemList: [Item] = []
     var totalCount: Int = 0
+    
+    var start: Int = 1
     
     let totalLabel = {
         let label = UILabel()
@@ -71,64 +77,7 @@ class NaverShopViewController: UIViewController {
     lazy var dateButton = createSortButton(title: "날짜순", tag: 2)
     lazy var priceDscButton = createSortButton(title: "가격높은순", tag: 3)
     lazy var priceAscButton = createSortButton(title: "가격낮은순", tag: 4)
-    // 정렬 버튼💣
-//    lazy var accuracyButton: UIButton = {
-//        let button = UIButton()
-//        button.setTitle("정확도순", for: .normal)
-//        button.setTitleColor(.white, for: .normal)//
-//        button.setTitleColor(.black, for: .selected)//
-//        button.titleLabel?.font = .systemFont(ofSize: 12)//
-//        button.layer.cornerRadius = 8//
-//        button.layer.borderWidth = 1//
-//        button.layer.borderColor = UIColor.white.cgColor//
-//        button.tag = 1 // sim
-//        button.addTarget(self, action: #selector(sortButtonTapped(_:)), for: .touchUpInside) // 두개 뺴고 다 중복인데
-//        return button
-//    }()
-//    
-//    lazy var dateButton: UIButton = {
-//        let button = UIButton()
-//        button.setTitle("날짜순", for: .normal)
-//        button.setTitleColor(.white, for: .normal)
-//        button.setTitleColor(.black, for: .selected)
-//        button.titleLabel?.font = .systemFont(ofSize: 12)
-//        button.layer.cornerRadius = 8
-//        button.layer.borderWidth = 1
-//        button.layer.borderColor = UIColor.white.cgColor
-//        button.tag = 2
-//        button.addTarget(self, action: #selector(sortButtonTapped(_:)), for: .touchUpInside)
-//        return button
-//    }()
-//    
-//    lazy var priceDscButton: UIButton = {
-//        let button = UIButton()
-//        button.setTitle("가격높은순", for: .normal)
-//        button.setTitleColor(.white, for: .normal)
-//        button.setTitleColor(.black, for: .selected)
-//        button.titleLabel?.font = .systemFont(ofSize: 12)
-//        button.layer.cornerRadius = 8
-//        button.layer.borderWidth = 1
-//        button.layer.borderColor = UIColor.white.cgColor
-//        button.tag = 3 // dsc 내림
-//        button.addTarget(self, action: #selector(sortButtonTapped(_:)), for: .touchUpInside)
-//        return button
-//    }()
-//    
-//    lazy var priceAscButton: UIButton = {
-//        let button = UIButton()
-//        button.setTitle("가격낮은순", for: .normal)
-//        button.setTitleColor(.white, for: .normal)
-//        button.setTitleColor(.black, for: .selected)
-//        button.titleLabel?.font = .systemFont(ofSize: 12)
-//        button.layer.cornerRadius = 8
-//        button.layer.borderWidth = 1
-//        button.layer.borderColor = UIColor.white.cgColor
-//        button.tag = 4 // ascㄹ 올림
-//        button.addTarget(self, action: #selector(sortButtonTapped(_:)), for: .touchUpInside)
-//        return button
-//    }()
-    
-    
+      
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .black
@@ -156,6 +105,7 @@ class NaverShopViewController: UIViewController {
         view.addSubview(collectionView)
         collectionView.delegate = self
         collectionView.dataSource = self
+        collectionView.prefetchDataSource = self
         collectionView.backgroundColor = .clear
         collectionView.register(NaverShopCollectionViewCell.self, forCellWithReuseIdentifier: "NaverShopCollectionViewCell")
     }
@@ -215,7 +165,7 @@ class NaverShopViewController: UIViewController {
         sender.isSelected = true //누른거 배경색 바꾹
         sender.backgroundColor = .white
         
-        let sort: String
+        
         switch sender.tag {
         case 1:
             sort = "sim"
@@ -228,8 +178,9 @@ class NaverShopViewController: UIViewController {
         default:
             sort = "sim"
         }
-        callRequest(query: searchText, sort: sort)
         
+        callRequest(query: searchText, sort: sort)
+
     }
         
     func changeUINaviCon() {
@@ -243,14 +194,15 @@ class NaverShopViewController: UIViewController {
         navigationController?.navigationBar.titleTextAttributes = [NSAttributedString.Key.foregroundColor: UIColor.white] // title외 하얗게
         navigationItem.leftBarButtonItem = backButton
     }
+    
     @objc
     func backButtonTapped(){
         navigationController?.popViewController(animated: true)
     }
     
     func callRequest(query: String, sort: String) {
-        //let sort = "sim" ㅁㅣ친거 아니야?
-        let url = "https://openapi.naver.com/v1/search/shop.json?query=\(query)&display=30&start=1&sort=\(sort)" // 재정렬을 서버에서 정렬된걸 가져오면 무한스크
+        //
+        let url = "https://openapi.naver.com/v1/search/shop.json?query=\(query)&display=30&start=\(start)&sort=\(sort)" // 재정렬을 서버에서 정렬된걸 가져오면 무한스크
         
         print(url)
         let header: HTTPHeaders = [
@@ -266,9 +218,15 @@ class NaverShopViewController: UIViewController {
         .responseDecodable(of: List.self) { response in
             switch response.result {
             case .success(let data):
-                print(data)
-                print(data.items.count)
-                self.itemList = data.items
+                
+                if self.start == 1 || self.start >= data.total{  // 검색결과보다 요청수가 더 많아지면 추가 더이상 안함
+                    self.itemList = data.items
+                } else {
+                    self.itemList.append(contentsOf: data.items)
+                }
+                dump(data)
+//                print(data.items.count)
+                
                 self.totalCount = data.total
                 self.totalLabel.text = "\(data.total.formatted())개의 검색 결과"
                 self.collectionView.reloadData()
@@ -292,9 +250,21 @@ extension NaverShopViewController: UICollectionViewDelegate, UICollectionViewDat
         cell.configure(item: itemList[indexPath.item])
         return cell
     }
-//    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-//        <#code#>
-//    }
-}
     
+    
+}
+
+extension NaverShopViewController: UICollectionViewDataSourcePrefetching {
+    func collectionView(_ collectionView: UICollectionView, prefetchItemsAt indexPaths: [IndexPath]) {
+        print(#function, indexPaths)
+        for i in indexPaths {
+            if itemList.count - 3 == i.item && start < 1001 {
+                start += 30
+                callRequest(query: searchText, sort: sort)
+            }
+        }
+        // 한번에 불러올 셀의 갯수 30개 27개째 봤을때 미리 불러오고 싶고
+    }
+
+}
 

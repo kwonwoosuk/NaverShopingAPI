@@ -67,7 +67,7 @@ class NaverShopCollectionViewCell: UICollectionViewCell {
     let likeButton = {
         let button = UIButton()
         button.setImage(UIImage(systemName: "heart"), for: .normal)
-        //button.setImage(UIImage(systemName: "heart.fill"), for: .selected) //엄...네.. 눌리지는 않아요 하하^^ bottom trailing
+        button.setImage(UIImage(systemName: "heart.fill"), for: .highlighted) //엄...네.. 눌리지는 않아요 하하^^ bottom trailing
         button.tintColor = .black
         return button
     }()
