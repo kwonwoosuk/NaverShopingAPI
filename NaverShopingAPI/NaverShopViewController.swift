@@ -16,32 +16,8 @@ import SnapKit
  option 정렬 영역, 다른파라미터로 정렬기능 구현-> 네트워크 통신 다시호출 button으로 만들어야하ㄴ?
  */
 
+var sort: String = "sim" //전역변수로 선언
 
-struct List: Decodable {
-    //let lastBuildDate: String //  정렬옵션에서 날짜순할때 쓰면될거같고....ㄹ
-    let total: Int
-    let start: Int
-    let display: Int
-    let items: [Item]
-}
-
-struct Item: Decodable {
-    let image: String //이미지 보여주고
-    let mallName: String // 월드캠핑카
-    let title: String // 스타리아 2층캠핑카 어쩌고저쩌고 두줄
-    let lprice: String // 얼마얼마     - 가격높은순?sort 를 asc가격순으로 오름차순 정렬 dsc가격순으로 내림차순 정렬 -메서드 만들어서 네트워크 다시 불러오면 알아서 정렬해줄듯  ⭐️sim 정확도순으로 내림차순 이걸 기본으로 해두자
-    var deleteTagTitle: String {
-        get {
-            title.replacingOccurrences(of: "<[^>]+>|&quot;",
-                                        with: "",
-                                        options: .regularExpression,
-                                        range: nil)
-        }
-    }
-}
-
-
-var sort: String = "sim"
 class NaverShopViewController: UIViewController {
     var searchText: String = "" // 검색어 들어옴 나이스
     
@@ -58,19 +34,11 @@ class NaverShopViewController: UIViewController {
     }()
     
     lazy var collectionView = UICollectionView(frame: .zero, collectionViewLayout: createCollectionView())
-    
-    func createSortButton(title: String, tag: Int) -> UIButton {
-        let button: FlatUIButton = FlatUIButton()
-        button.setTitle(title, for: .normal)
-        button.tag = tag
-        button.addTarget(self, action: #selector(sortButtonTapped(_:)), for: .touchUpInside)
-        return button
-    }
-    
     lazy var accuracyButton = createSortButton(title: "정확도순", tag: 1)
     lazy var dateButton = createSortButton(title: "날짜순", tag: 2)
     lazy var priceDscButton = createSortButton(title: "가격높은순", tag: 3)
     lazy var priceAscButton = createSortButton(title: "가격낮은순", tag: 4)
+    
       
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -102,6 +70,14 @@ class NaverShopViewController: UIViewController {
         collectionView.prefetchDataSource = self
         collectionView.backgroundColor = .clear
         collectionView.register(NaverShopCollectionViewCell.self, forCellWithReuseIdentifier: "NaverShopCollectionViewCell")
+    }
+    
+    func createSortButton(title: String, tag: Int) -> UIButton {
+        let button: FlatUIButton = FlatUIButton()
+        button.setTitle(title, for: .normal)
+        button.tag = tag
+        button.addTarget(self, action: #selector(sortButtonTapped(_:)), for: .touchUpInside)
+        return button
     }
     
     func configureUI() {
@@ -177,6 +153,11 @@ class NaverShopViewController: UIViewController {
 
     }
         
+    @objc
+    func backButtonTapped(){
+        navigationController?.popViewController(animated: true)
+    }
+    
     func changeUINaviCon() {
         navigationItem.title = searchText
         //navigationItem.titleView?.tintColor = .white 넌 뭐하는애야?
@@ -189,20 +170,13 @@ class NaverShopViewController: UIViewController {
         navigationItem.leftBarButtonItem = backButton
     }
     
-    @objc
-    func backButtonTapped(){
-        navigationController?.popViewController(animated: true)
-    }
+    
     
     func callRequest(query: String, sort: String) {
         //
         let url = "https://openapi.naver.com/v1/search/shop.json?query=\(query)&display=30&start=\(start)&sort=\(sort)" // 재정렬을 서버에서 정렬된걸 가져오면 무한스크
         
-        print(url)
         let header: HTTPHeaders = [
-            /*/curl "https://openapi.naver.com/v1/search/shop.xml?query=%EC%A3%BC%EC%8B%9D&display=10&start=1&sort=sim" \
-             -H "X-Naver-Client-Id: {애플리케이션 등록 시 발급받은 클라이언트 아이디 값}" \ 쉼표... 그래 쉼표,,, 너라도 쉬어야지
-             -H "X-Naver-Client-Secret: {애플리케이션 등록 시 발급받은 클라이언트 시크릿 값}" -v*/
             "X-Naver-Client-Id": APINAVER.id,
             "X-Naver-Client-Secret": APINAVER.key
         ]
