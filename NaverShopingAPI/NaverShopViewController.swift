@@ -60,14 +60,8 @@ class NaverShopViewController: UIViewController {
     lazy var collectionView = UICollectionView(frame: .zero, collectionViewLayout: createCollectionView())
     
     func createSortButton(title: String, tag: Int) -> UIButton {
-        let button = UIButton()
+        let button: FlatUIButton = FlatUIButton()
         button.setTitle(title, for: .normal)
-        button.setTitleColor(.white, for: .normal)
-        button.setTitleColor(.black, for: .selected)
-        button.titleLabel?.font = .systemFont(ofSize: 12)
-        button.layer.cornerRadius = 8
-        button.layer.borderWidth = 1
-        button.layer.borderColor = UIColor.white.cgColor
         button.tag = tag
         button.addTarget(self, action: #selector(sortButtonTapped(_:)), for: .touchUpInside)
         return button
