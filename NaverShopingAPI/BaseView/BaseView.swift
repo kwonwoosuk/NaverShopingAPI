@@ -13,6 +13,7 @@ class BaseView: UIView {
         configureHierarchy()
         configureLayout()
         configureCollectionView()
+        configureDelegate()
     }
     
     func configureHierarchy() {}
@@ -21,6 +22,7 @@ class BaseView: UIView {
     
     func configureLayout() {}
     
+    func configureDelegate() {}
     
     @available(*,unavailable)
     required init?(coder: NSCoder) {

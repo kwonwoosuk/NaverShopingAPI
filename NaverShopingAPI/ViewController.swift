@@ -106,7 +106,7 @@ extension ViewController: UISearchBarDelegate {
         let vc = NaverShopViewController()
         vc.searchText = text
         self.navigationController?.pushViewController(vc, animated: true)
-        searchBar.endEditing(true)
+        searchBar.resignFirstResponder()
     }
 }
 

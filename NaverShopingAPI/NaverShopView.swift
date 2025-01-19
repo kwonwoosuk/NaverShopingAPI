@@ -8,7 +8,7 @@
 import UIKit
 
 class NaverShopView: BaseView {
-    
+    //... 
   
     override func configureHierarchy() {
         
@@ -21,6 +21,8 @@ class NaverShopView: BaseView {
     override func configureLayout() {
         
     }
+    
+    
     
     
     
