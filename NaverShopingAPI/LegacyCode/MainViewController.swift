@@ -77,7 +77,7 @@ extension MainViewController: UISearchBarDelegate {
 
 extension UIViewController {
     func showAlert(title: String, message: String, button: String, completionHadler: @escaping () -> () ) {
-        let alert = UIAlertController(title: title, message: message, preferredStyle: .alert) 
+        let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
         
         let button = UIAlertAction(title: button, style: .default) { action in
             completionHadler()

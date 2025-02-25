@@ -12,17 +12,17 @@ class BaseView: UIView {
         super.init(frame: frame)
         configureHierarchy()
         configureLayout()
-        configureCollectionView()
-        configureDelegate()
+        configureView()
+//        configureDelegate()
     }
     
     func configureHierarchy() {}
     
-    func configureCollectionView() {}
+    func configureView() {}
     
     func configureLayout() {}
     
-    func configureDelegate() {}
+//    func configureDelegate() {}
     
     @available(*,unavailable)
     required init?(coder: NSCoder) {
