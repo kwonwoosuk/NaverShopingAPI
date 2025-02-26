@@ -10,6 +10,18 @@ import RxSwift
 import RxCocoa
 import Alamofire
 
+//
+//  ShoppingViewModel.swift
+//  NaverShopingAPI
+//
+//  Created by 권우석 on 2/26/25.
+//
+
+import Foundation
+import RxSwift
+import RxCocoa
+import Alamofire
+
 final class ShoppingViewModel : BaseViewModel {
     
     let disposeBag = DisposeBag()
@@ -40,55 +52,163 @@ final class ShoppingViewModel : BaseViewModel {
         let itemsRelay = BehaviorRelay<[Item]>(value: [])
         let totalCountRelay = BehaviorRelay<String>(value: "")
         let sortTypeRelay = BehaviorRelay<SortType>(value: .sim)
-        
         let loadingRelay = BehaviorRelay<Bool>(value: false)
         let errorRelay = PublishRelay<String?>()
         
         // 화면 로드 시 정확도순으로 초기 검색
         input.viewDidLoad
+            .throttle(.seconds(1), scheduler: MainScheduler.instance)
             .withLatestFrom(input.searchText)
-            .subscribe(onNext: { [weak self] query in
-                guard let query = query, !query.isEmpty else { return }
-                self?.fetchItems(query: query, sort: .sim, itemsRelay: itemsRelay, totalCountRelay: totalCountRelay, loadingRelay: loadingRelay, errorRelay: errorRelay)
-            })
+            .compactMap { $0 }
+            .filter { !$0.isEmpty }
+            .flatMap { query in
+                NetworkManager.shared.searchShopItems(query: query, sort: .sim)
+            }
+            .debug("ViewDidLoad")
+            .subscribe { result in
+                sortTypeRelay.accept(.sim)
+                
+                switch result {
+                case .success(let data):
+                    itemsRelay.accept(data.items)
+                    totalCountRelay.accept("\(data.total.formatted())개의 검색 결과")
+                case .failure(let error):
+                    errorRelay.accept(error.message)
+                    itemsRelay.accept([])
+                }
+            } onError: { error in
+                print("onError")
+                errorRelay.accept("오류가 발생했습니다: \(error.localizedDescription)")
+            } onCompleted: {
+                print("onCompleted")
+            } onDisposed: {
+                print("onDisposed")
+            }
             .disposed(by: disposeBag)
         
         // 정확도순 버튼 탭
         input.accuracyButtonTapped
-            .do(onNext: { sortTypeRelay.accept(.sim) })
+            .throttle(.seconds(1), scheduler: MainScheduler.instance)
             .withLatestFrom(input.searchText)
-            .subscribe(onNext: { [weak self] query in
-                guard let query = query, !query.isEmpty else { return }
-                self?.fetchItems(query: query, sort: .sim, itemsRelay: itemsRelay, totalCountRelay: totalCountRelay, loadingRelay: loadingRelay, errorRelay: errorRelay)
-            })
+            .compactMap { $0 }
+            .filter { !$0.isEmpty }
+            .flatMap { query in
+                NetworkManager.shared.searchShopItems(query: query, sort: .sim)
+            }
+            .debug("AccuracyButton")
+            .subscribe { result in
+                sortTypeRelay.accept(.sim)
+                
+                switch result {
+                case .success(let data):
+                    itemsRelay.accept(data.items)
+                    totalCountRelay.accept("\(data.total.formatted())개의 검색 결과")
+                case .failure(let error):
+                    errorRelay.accept(error.message)
+                    itemsRelay.accept([])
+                }
+            } onError: { error in
+                print("onError")
+                errorRelay.accept("오류가 발생했습니다: \(error.localizedDescription)")
+            } onCompleted: {
+                print("onCompleted")
+            } onDisposed: {
+                print("onDisposed")
+            }
             .disposed(by: disposeBag)
         
         // 날짜순 버튼 탭
         input.dateButtonTapped
-            .do(onNext: { sortTypeRelay.accept(.date) })
+            .throttle(.seconds(1), scheduler: MainScheduler.instance)
             .withLatestFrom(input.searchText)
-            .subscribe(onNext: { [weak self] query in
-                guard let query = query, !query.isEmpty else { return }
-                self?.fetchItems(query: query, sort: .date, itemsRelay: itemsRelay, totalCountRelay: totalCountRelay, loadingRelay: loadingRelay, errorRelay: errorRelay)
-            })
+            .compactMap { $0 }
+            .filter { !$0.isEmpty }
+            .flatMap { query in
+                NetworkManager.shared.searchShopItems(query: query, sort: .date)
+            }
+            .debug("DateButton")
+            .subscribe { result in
+                sortTypeRelay.accept(.date)
+                
+                switch result {
+                case .success(let data):
+                    itemsRelay.accept(data.items)
+                    totalCountRelay.accept("\(data.total.formatted())개의 검색 결과")
+                case .failure(let error):
+                    errorRelay.accept(error.message)
+                    itemsRelay.accept([])
+                }
+            } onError: { error in
+                print("onError")
+                errorRelay.accept("오류가 발생했습니다: \(error.localizedDescription)")
+            } onCompleted: {
+                print("onCompleted")
+            } onDisposed: {
+                print("onDisposed")
+            }
             .disposed(by: disposeBag)
         
+        // 가격높은순 버튼 탭
         input.priceHighButtonTapped
-            .do(onNext: { sortTypeRelay.accept(.dsc) })
+            .throttle(.seconds(1), scheduler: MainScheduler.instance)
             .withLatestFrom(input.searchText)
-            .subscribe(onNext: { [weak self] query in
-                guard let query = query, !query.isEmpty else { return }
-                self?.fetchItems(query: query, sort: .dsc, itemsRelay: itemsRelay, totalCountRelay: totalCountRelay, loadingRelay: loadingRelay, errorRelay: errorRelay)
-            })
+            .compactMap { $0 }
+            .filter { !$0.isEmpty }
+            .flatMap { query in
+                NetworkManager.shared.searchShopItems(query: query, sort: .dsc)
+            }
+            .debug("PriceHighButton")
+            .subscribe { result in
+                sortTypeRelay.accept(.dsc)
+                
+                switch result {
+                case .success(let data):
+                    itemsRelay.accept(data.items)
+                    totalCountRelay.accept("\(data.total.formatted())개의 검색 결과")
+                case .failure(let error):
+                    errorRelay.accept(error.message)
+                    itemsRelay.accept([])
+                }
+            } onError: { error in
+                print("onError")
+                errorRelay.accept("오류가 발생했습니다: \(error.localizedDescription)")
+            } onCompleted: {
+                print("onCompleted")
+            } onDisposed: {
+                print("onDisposed")
+            }
             .disposed(by: disposeBag)
         
+        // 가격낮은순 버튼 탭
         input.priceLowButtonTapped
-            .do(onNext: { sortTypeRelay.accept(.asc) })
+            .throttle(.seconds(1), scheduler: MainScheduler.instance)
             .withLatestFrom(input.searchText)
-            .subscribe(onNext: { [weak self] query in
-                guard let query = query, !query.isEmpty else { return }
-                self?.fetchItems(query: query, sort: .asc, itemsRelay: itemsRelay, totalCountRelay: totalCountRelay, loadingRelay: loadingRelay, errorRelay: errorRelay)
-            })
+
+            .compactMap { $0 }
+            .filter { !$0.isEmpty }
+            .flatMap { query in
+                NetworkManager.shared.searchShopItems(query: query, sort: .asc)
+            }
+            .debug("PriceLowButton")
+            .subscribe { result in
+                sortTypeRelay.accept(.asc)
+                
+                switch result {
+                case .success(let data):
+                    itemsRelay.accept(data.items)
+                    totalCountRelay.accept("\(data.total.formatted())개의 검색 결과")
+                case .failure(let error):
+                    errorRelay.accept(error.message)
+                    itemsRelay.accept([])
+                }
+            } onError: { error in
+                print("onError")
+                errorRelay.accept("오류가 발생했습니다: \(error.localizedDescription)")
+            } onCompleted: {
+                print("onCompleted")
+            } onDisposed: {
+                print("onDisposed")
+            }
             .disposed(by: disposeBag)
         
         return Output(
@@ -96,32 +216,8 @@ final class ShoppingViewModel : BaseViewModel {
             totalCount: totalCountRelay.asDriver(),
             sortType: sortTypeRelay.asDriver(),
             isLoading: loadingRelay.asDriver(),
-            backButtonTapped: input.backButtonTapped?.asDriver() ,
+            backButtonTapped: input.backButtonTapped?.asDriver(),
             error: errorRelay.asDriver(onErrorJustReturn: nil)
         )
-    }
-    
-    private func fetchItems(query: String, sort: SortType, itemsRelay: BehaviorRelay<[Item]>, totalCountRelay: BehaviorRelay<String>, loadingRelay: BehaviorRelay<Bool>, errorRelay: PublishRelay<String?>) {
-        
-        loadingRelay.accept(true)
-        
-        networkManager.searchShopItems(query: query, sort: sort)
-            .subscribe(onSuccess: { result in
-                loadingRelay.accept(false)
-                
-                switch result {
-                case .success(let data):
-                    itemsRelay.accept(data.items)
-                    totalCountRelay.accept("\(data.total.formatted())개의 검색 결과")
-                    
-                case .failure(let error):
-                    errorRelay.accept(error.message)
-                }
-                
-            }, onFailure: { error in
-                loadingRelay.accept(false)
-                errorRelay.accept("오류가 발생했습니다: \(error.localizedDescription)")
-            })
-            .disposed(by: disposeBag)
     }
 }

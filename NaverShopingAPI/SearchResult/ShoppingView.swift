@@ -4,8 +4,6 @@
 //
 //  Created by 권우석 on 2/26/25.
 //
-
-// NaverShopView.swift
 import UIKit
 import SnapKit
 

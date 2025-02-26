@@ -66,7 +66,8 @@ final class NetworkManager {
                             }
                             // 상태 코드에 따라 오류 타입 넣어주기
                             let error = NaverAPIError.fromStatusCode(statusCode, message: errorMessage)
-                            value(.success(.failure(error)))
+                            print(error,"에러코드 디버깅")
+                            value(.success(.failure(error))) // 에러코드를 viewmodel에서 error.message로 접근해서 VC에서 alert로 표시
                         }
                     } else {
                         value(.success(.failure(.unknown)))
