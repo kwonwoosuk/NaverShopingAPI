@@ -76,13 +76,6 @@ final class ShoppingViewModel : BaseViewModel {
                     errorRelay.accept(error.message)
                     itemsRelay.accept([])
                 }
-            } onError: { error in
-                print("onError")
-                errorRelay.accept("오류가 발생했습니다: \(error.localizedDescription)")
-            } onCompleted: {
-                print("onCompleted")
-            } onDisposed: {
-                print("onDisposed")
             }
             .disposed(by: disposeBag)
         
@@ -107,13 +100,6 @@ final class ShoppingViewModel : BaseViewModel {
                     errorRelay.accept(error.message)
                     itemsRelay.accept([])
                 }
-            } onError: { error in
-                print("onError")
-                errorRelay.accept("오류가 발생했습니다: \(error.localizedDescription)")
-            } onCompleted: {
-                print("onCompleted")
-            } onDisposed: {
-                print("onDisposed")
             }
             .disposed(by: disposeBag)
         
@@ -138,13 +124,6 @@ final class ShoppingViewModel : BaseViewModel {
                     errorRelay.accept(error.message)
                     itemsRelay.accept([])
                 }
-            } onError: { error in
-                print("onError")
-                errorRelay.accept("오류가 발생했습니다: \(error.localizedDescription)")
-            } onCompleted: {
-                print("onCompleted")
-            } onDisposed: {
-                print("onDisposed")
             }
             .disposed(by: disposeBag)
         
@@ -169,13 +148,6 @@ final class ShoppingViewModel : BaseViewModel {
                     errorRelay.accept(error.message)
                     itemsRelay.accept([])
                 }
-            } onError: { error in
-                print("onError")
-                errorRelay.accept("오류가 발생했습니다: \(error.localizedDescription)")
-            } onCompleted: {
-                print("onCompleted")
-            } onDisposed: {
-                print("onDisposed")
             }
             .disposed(by: disposeBag)
         
@@ -183,7 +155,6 @@ final class ShoppingViewModel : BaseViewModel {
         input.priceLowButtonTapped
             .throttle(.seconds(1), scheduler: MainScheduler.instance)
             .withLatestFrom(input.searchText)
-
             .compactMap { $0 }
             .filter { !$0.isEmpty }
             .flatMap { query in
@@ -201,16 +172,10 @@ final class ShoppingViewModel : BaseViewModel {
                     errorRelay.accept(error.message)
                     itemsRelay.accept([])
                 }
-            } onError: { error in
-                print("onError")
-                errorRelay.accept("오류가 발생했습니다: \(error.localizedDescription)")
-            } onCompleted: {
-                print("onCompleted")
-            } onDisposed: {
-                print("onDisposed")
             }
             .disposed(by: disposeBag)
         
+     
         return Output(
             items: itemsRelay.asDriver(),
             totalCount: totalCountRelay.asDriver(),
