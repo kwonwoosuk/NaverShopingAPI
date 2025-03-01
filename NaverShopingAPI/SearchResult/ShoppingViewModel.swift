@@ -10,18 +10,6 @@ import RxSwift
 import RxCocoa
 import Alamofire
 
-//
-//  ShoppingViewModel.swift
-//  NaverShopingAPI
-//
-//  Created by 권우석 on 2/26/25.
-//
-
-import Foundation
-import RxSwift
-import RxCocoa
-import Alamofire
-
 final class ShoppingViewModel : BaseViewModel {
     
     let disposeBag = DisposeBag()
@@ -30,6 +18,7 @@ final class ShoppingViewModel : BaseViewModel {
     struct Input {
         let viewDidLoad: ControlEvent<Void> // 화면 로드 완료
         let searchText: BehaviorRelay<String?> // 검색어
+        
         let accuracyButtonTapped: ControlEvent<Void> // 정확도순 버튼
         let dateButtonTapped: ControlEvent<Void> // 날짜순 버튼
         let priceHighButtonTapped: ControlEvent<Void> // 가격높은순 버튼

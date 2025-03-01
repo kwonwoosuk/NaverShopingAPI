@@ -5,7 +5,7 @@
 //  Created by 권우석 on 2/26/25.
 //
 
-// MainView.swift
+
 import UIKit
 import SnapKit
 

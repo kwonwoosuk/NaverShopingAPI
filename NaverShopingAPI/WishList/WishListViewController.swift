@@ -63,7 +63,7 @@ final class WishListViewController: BaseViewController {
             
             content.text = itemIdentifier.name
             content.textProperties.color = .white
-            content.textProperties.font =   .boldSystemFont(ofSize: 16)
+            content.textProperties.font = .boldSystemFont(ofSize: 16)
             
             content.secondaryText = itemIdentifier.date.toString()
             content.secondaryTextProperties.color = .yellow
