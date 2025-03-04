@@ -9,6 +9,8 @@
 import UIKit
 import Kingfisher
 import SnapKit
+import RxSwift
+import RxCocoa
 
 class ShoppingViewCell: UICollectionViewCell {
     
@@ -20,11 +22,18 @@ class ShoppingViewCell: UICollectionViewCell {
     let priceLabel = UILabel()
     let likeButton = UIButton()
     
+    var disposeBag = DisposeBag()
+    
     override init(frame: CGRect) {
         super.init(frame: frame)
         configureHierarchy()
         configureLayout()
         configureView()
+    }
+    
+    override func prepareForReuse() {
+        super.prepareForReuse()
+        disposeBag = DisposeBag()
     }
     
     required init?(coder: NSCoder) {
@@ -80,14 +89,14 @@ class ShoppingViewCell: UICollectionViewCell {
         priceLabel.font = .systemFont(ofSize: 16, weight: .bold)
         
         likeButton.setImage(UIImage(systemName: "heart"), for: .normal)
-        likeButton.setImage(UIImage(systemName: "heart.fill"), for: .highlighted)
+        likeButton.setImage(UIImage(systemName: "heart.fill"), for: .selected)
         likeButton.tintColor = .white
         likeButton.backgroundColor = .black.withAlphaComponent(0.5)
         likeButton.layer.cornerRadius = 15
         likeButton.clipsToBounds = true
     }
     
-    func configure(item: Item) {
+    func configure(item: Item, isFavorite: Bool) {
         let url = URL(string: item.image)
         imageView.kf.setImage(with: url)
         mallNameLabel.text = item.mallName
@@ -96,5 +105,7 @@ class ShoppingViewCell: UICollectionViewCell {
         if let price = Int(item.lprice) {
             priceLabel.text = "\(price.formatted())원"
         }
+        
+        likeButton.isSelected = isFavorite
     }
 }
