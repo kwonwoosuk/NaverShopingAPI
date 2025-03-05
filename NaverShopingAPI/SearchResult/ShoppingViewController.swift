@@ -60,25 +60,25 @@ final class ShoppingViewController: BaseViewController {
             .drive(mainView.collectionView.rx.items(cellIdentifier: ShoppingViewCell.identifier, cellType: ShoppingViewCell.self)) { [weak self] _, item, cell in
                 guard let self = self else { return }
                 let isFavorite = self.isItemFavorited(title: item.deleteTagTitle)
-                    
+                
                 cell.configure(item: item, isFavorite: isFavorite)
                 
-                    cell.likeButton.rx.tap
-                        .bind(with: self) { owner, _ in
-                            if cell.likeButton.isSelected {
-                                //이미 선택되어있으면 취소
-                                owner.removeFavorites(title: item.deleteTagTitle)
-                                cell.likeButton.isSelected = false
-                            } else {
-                                // 좋아요 추가
-                                if let price = Int(item.lprice) {
-                                    owner.addFavorites(mallName: item.mallName, title: item.deleteTagTitle, price: price)
-                                    cell.likeButton.isSelected = true
-                                }
+                cell.likeButton.rx.tap
+                    .bind(with: self) { owner, _ in
+                        if cell.likeButton.isSelected {
+                            //이미 선택되어있으면 취소
+                            owner.removeFavorites(title: item.deleteTagTitle)
+                            cell.likeButton.isSelected = false
+                        } else {
+                            // 좋아요 추가
+                            if let price = Int(item.lprice) {
+                                owner.addFavorites(mallName: item.mallName, title: item.deleteTagTitle, price: price)
+                                cell.likeButton.isSelected = true
                             }
                         }
-                        .disposed(by: cell.disposeBag)
-                }
+                    }
+                    .disposed(by: cell.disposeBag)
+            }
             .disposed(by: disposeBag)
         
         output.totalCount

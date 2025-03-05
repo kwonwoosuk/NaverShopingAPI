@@ -61,7 +61,7 @@ final class SearchViewController: BaseViewController {
         
         rightBarButton.rx.tap
             .bind(with: self) { owner, _ in
-                let vc = WishListViewController()
+                let vc = WishFolderViewController()
                 owner.navigationController?.pushViewController(vc, animated: true)
             }
             .disposed(by: disposeBag)

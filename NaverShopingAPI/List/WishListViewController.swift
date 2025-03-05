@@ -7,15 +7,16 @@
 // List Configuration 과 DiffableDataSource 이해하기⭐️
 import UIKit
 import SnapKit
+import RealmSwift
 //collectionView -> createLayout -> var dataSource<섹션, 타입> ->configureDataSource
 // reload() ==> apply <-> updateSnapShot()
 // 클릭 이벤트 필요시 기존 Delegate사용
 
-struct WishList: Hashable, Identifiable {
-    let id = UUID() //  UUID는 앱을 설치해서 사용하는 동안 사용자를 어느정도 특정할 수 있고 고유성을 보장하기 위해 주는값? 앱 지우면 사라짐 , 앱별로 다른 UUID부여됨
-    let name: String
-    let date = Date()
-}
+//struct WishList: Hashable, Identifiable {
+//    let id = UUID() //  UUID는 앱을 설치해서 사용하는 동안 사용자를 어느정도 특정할 수 있고 고유성을 보장하기 위해 주는값? 앱 지우면 사라짐 , 앱별로 다른 UUID부여됨
+//    let name: String
+//    let date = Date()
+//}
 
 
 final class WishListViewController: BaseViewController {
@@ -30,18 +31,26 @@ final class WishListViewController: BaseViewController {
     private let SearchBar = UISearchBar()
     private lazy var collectionView = UICollectionView(frame: .zero, collectionViewLayout: createLayout())
     private var dataSource: UICollectionViewDiffableDataSource<Section, WishList>!
+    private let repository: WishListRepository = WishListTableRepository()
+    private let folderRepository: WishFolderRepository = WishFolderTableRepository()
+    var wishList: [WishList] = []
+    //    var wishList: RealmSwift.List<WishList>!
+    var id: ObjectId!
+    var naviName = "" //  네비게이션타이틀 / 폴더명
     
-    private var wishList: [WishList] = [
-        WishList(name: "맥북프로"),
-        WishList(name: "맥북에어"),
-        WishList(name: "맥프로"),
-        WishList(name: "맥스튜디오"),
-        WishList(name: "맥미니")
-    ]
+    
+    //    private var wishList: [WishList] = [
+    //        WishList(name: "맥북프로"),
+    //        WishList(name: "맥북에어"),
+    //        WishList(name: "맥프로"),
+    //        WishList(name: "맥스튜디오"),
+    //        WishList(name: "맥미니")
+    //    ]
     
     override func viewDidLoad() {
         super.viewDidLoad()
         configureDataSource()
+        repository.getFileURL()
         updateSnapShot()
         
     }
@@ -92,9 +101,17 @@ final class WishListViewController: BaseViewController {
     private func updateSnapShot() {
         var snapshot = NSDiffableDataSourceSnapshot<Section, WishList>()
         snapshot.appendSections(Section.allCases)
-        snapshot.appendItems(wishList, toSection: .WishList)
+        //        snapshot.appendItems(wishList, toSection: .WishList) ///////////////////
+        var uniqueItems = [ObjectId: WishList]()
+        for item in wishList {
+            uniqueItems[item.id] = item
+        }
         
+        snapshot.appendItems(Array(uniqueItems.values), toSection: .WishList)
         dataSource.apply(snapshot) // 다시 보여주
+        
+        
+        
     }
     
     override func configureHierarchy() {
@@ -118,7 +135,7 @@ final class WishListViewController: BaseViewController {
     
     override func configureView() {
         view.backgroundColor = .black
-        navigationItem.title = "WISHLIST"
+        navigationItem.title = naviName
         navigationController?.navigationBar.tintColor = .white
         navigationController?.navigationBar.topItem?.backButtonTitle = ""
         navigationController?.navigationBar.titleTextAttributes = [NSAttributedString.Key.foregroundColor: UIColor.white]
@@ -139,17 +156,42 @@ final class WishListViewController: BaseViewController {
 extension WishListViewController: UISearchBarDelegate, UICollectionViewDelegate {
     // 컬렉션뷰 셀 클릭시 삭제
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        wishList.remove(at: indexPath.item)
+        //        wishList.remove(at: indexPath.item)
+        let data = wishList[indexPath.item]
+        let folder = folderRepository.fetchAll()
+            .where {
+                $0.id == id
+            }.first! // 타입을 바꿔주기 위함 하나만 넣을거기도 하고
+        
+        //        repository.createItemInFolder(folder: folder)
+        repository.deleteItem(data: data)
+        
+        
+        let updatedWishList = folder.wishList.sorted(byKeyPath: "date", ascending: false)
+        wishList = Array(updatedWishList)
+        
         updateSnapShot() // => reloadData()
     }
     // 리턴키 입력시 추가쓰
+    // 서치바 입력후 해당 폴더에 위시리스트 추가
     func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
         print(#function)
-        let addList = WishList(name: searchBar.text ?? "")
+        //        let addList = WishList(name: searchBar.text ?? "")
+        //        wishList.append(addList)
         
-        wishList.append(addList)
+        let folder = folderRepository.fetchAll()
+            .where {
+                $0.id == id
+            }.first!
+        
+        repository.createItem(name: searchBar.text ?? "", folder: folder)
+        
+        let updatedWishList = folder.wishList.sorted(byKeyPath: "date", ascending: false)
+        wishList = Array(updatedWishList)
+        
+        searchBar.text = ""
         updateSnapShot()
+        
+        
     }
-    
-    
 }
