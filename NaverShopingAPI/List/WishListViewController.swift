@@ -18,7 +18,6 @@ import RealmSwift
 //    let date = Date()
 //}
 
-
 final class WishListViewController: BaseViewController {
     // 서치바 글자 입력후 리턴키 누르면 위시리스트 추가
     //위시 리스트 모델 ( 상품명, 날짜 ) 구조체
@@ -101,15 +100,16 @@ final class WishListViewController: BaseViewController {
     private func updateSnapShot() {
         var snapshot = NSDiffableDataSourceSnapshot<Section, WishList>()
         snapshot.appendSections(Section.allCases)
-        //        snapshot.appendItems(wishList, toSection: .WishList) ///////////////////
-        var uniqueItems = [ObjectId: WishList]()
-        for item in wishList {
-            uniqueItems[item.id] = item
-        }
-        
-        snapshot.appendItems(Array(uniqueItems.values), toSection: .WishList)
-        dataSource.apply(snapshot) // 다시 보여주
-        
+        snapshot.appendItems(wishList, toSection: .WishList) /////////////////// 셀이 중복으로 두개씩 저장되어 오류 나던 문제/ 식별자가 고유하지 않게 저장되었었음
+        ///여기 로직 문제가 아니라 아래 create를 두번씩 해줬었음
+        //        var uniqueItems = [ObjectId: WishList]()
+        //        for item in wishList {
+        //            uniqueItems[item.id] = item
+        //        }
+        //        snapshot.appendItems(Array(uniqueItems.values), toSection: .WishList)
+        //        dataSource.apply(snapshot) // 다시 보여주
+        dataSource.applySnapshotUsingReloadData(snapshot) // == tableView.reloadData와 거의 동일한 기능을 한다고 봐도 된다 0306 수업에서 해답을 찾다... (디퍼블의 애니메이션을 포기하게 되...)
+        /////////////////////////////////////////////////////////////////////////////////////
         
         
     }
@@ -155,7 +155,7 @@ final class WishListViewController: BaseViewController {
 
 extension WishListViewController: UISearchBarDelegate, UICollectionViewDelegate {
     // 컬렉션뷰 셀 클릭시 삭제
-    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) { // 여기서 앱터짐
         //        wishList.remove(at: indexPath.item)
         let data = wishList[indexPath.item]
         let folder = folderRepository.fetchAll()
@@ -167,7 +167,7 @@ extension WishListViewController: UISearchBarDelegate, UICollectionViewDelegate 
         repository.deleteItem(data: data)
         
         
-        let updatedWishList = folder.wishList.sorted(byKeyPath: "date", ascending: false)
+        let updatedWishList = folder.wishList.sorted(byKeyPath: "date", ascending: false) // 다시 불러오는 fetch 우현님께 여쭤보기
         wishList = Array(updatedWishList)
         
         updateSnapShot() // => reloadData()
@@ -194,4 +194,30 @@ extension WishListViewController: UISearchBarDelegate, UICollectionViewDelegate 
         
         
     }
+    /*
+     func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
+     print(#function)
+     //        let addList = WishList(name: searchBar.text ?? "")
+     //        wishList.append(addList)
+     
+     let folder = folderRepository.fetchAll()
+     .where {
+     $0.id == id
+     }.first!
+     
+     repository.createItem(name: searchBar.text ?? "", folder: folder)
+     
+     repository.createItemInFolder(folder: folder) 이렇게 두번 집어 넣고 있었음 위에 수정한 코드에서 생성이나 삭제 후에
+     //let updatedWishList = folder.wishList.sorted(byKeyPath: "date", ascending: false)
+     wishList = Array(updatedWishList)
+     이런식으로 데이터를 다시 한번 갱신해주는 작업을 해줘서 반영
+     두번씩 들어가서 셀 중복 오류로 앱터짐
+     
+     
+     
+     searchBar.text = ""
+     updateSnapShot()
+     }
+     
+     */
 }
